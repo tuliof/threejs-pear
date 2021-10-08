@@ -1,19 +1,7 @@
 import * as THREE from "three";
+import line from "../public/images/line.jpg";
 
-// const canvas = document.getElementById("c");
-// const renderer = new THREE.WebGLRenderer({ canvas });
-// renderer.setSize(window.innerWidth, window.innerHeight);
-
-// const camera = new THREE.PerspectiveCamera(
-//   45,
-//   window.innerWidth / window.innerHeight,
-//   1,
-//   500
-// );
-// camera.position.set(0, 0, 100);
-// camera.lookAt(0, 0, 0);
-
-// const scene = new THREE.Scene();
+console.log("line", line);
 
 function main() {
   const canvas = document.querySelector("#c");
@@ -28,12 +16,25 @@ function main() {
 
   const scene = new THREE.Scene();
 
+  {
+    const color = 0xffffff;
+    const intensity = 1;
+    const light = new THREE.DirectionalLight(color, intensity);
+    light.position.set(-1, 2, 4);
+    scene.add(light);
+  }
+
+  const loader = new THREE.TextureLoader();
+
   const boxWidth = 1;
   const boxHeight = 1;
   const boxDepth = 1;
   const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
 
-  const material = new THREE.MeshBasicMaterial({ color: 0x44aa88 }); // greenish blue
+  //   const material = new THREE.MeshPhongMaterial({ color: 0x44aa88 }); // greenish blue
+  const material = new THREE.MeshBasicMaterial({
+    map: loader.load(line),
+  });
 
   const cube = new THREE.Mesh(geometry, material);
   scene.add(cube);
@@ -41,6 +42,14 @@ function main() {
   function render(time) {
     time *= 0.001; // convert time to seconds
 
+    // Update camera aspect ratio
+    if (resizeRendererToDisplaySize(renderer)) {
+      const canvas = renderer.domElement;
+      camera.aspect = canvas.clientWidth / canvas.clientHeight;
+      camera.updateProjectionMatrix();
+    }
+
+    // Movement
     cube.rotation.x = time;
     cube.rotation.y = time;
 
@@ -48,6 +57,19 @@ function main() {
 
     requestAnimationFrame(render);
   }
+
+  function resizeRendererToDisplaySize(renderer) {
+    const canvas = renderer.domElement;
+    const pixelRatio = window.devicePixelRatio;
+    const width = (canvas.clientWidth * pixelRatio) | 0;
+    const height = (canvas.clientHeight * pixelRatio) | 0;
+    const needResize = canvas.width !== width || canvas.height !== height;
+    if (needResize) {
+      renderer.setSize(width, height, false);
+    }
+    return needResize;
+  }
+
   requestAnimationFrame(render);
 }
 
